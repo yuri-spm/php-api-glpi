@@ -1,23 +1,17 @@
 <?php
 
-require_once ('src/GLPIAPI.php');
+require_once ('src/GLPIApi.php');
 
 
-// Exemplo de uso:
-$apiUrl = 'url';
-$username = 'user';
-$password = 'senha';
-$apptoken = 'app-token';
+
+$apiUrl = 'http://209.126.12.158:8089/apirest.php';
+$username = 'glpi';
+$password = '.ADM_S3rv1c3.';
+$apptoken = 'CNSmpF4sLEHYvbOMN8AibrfuVgvEG1ejdBGQl0E9';
 
 $glpiApi = new GLPIApi($apiUrl, $username, $password, $apptoken);
-var_dump($glpiApi);
-if ($glpiApi->login()) {
-    
-    $sessionToken = $glpiApi->getSessionToken();
-    var_dump($sessionToken);
+//var_dump($glpiApi);
 
+echo $glpiApi->initSession();
 
-    
-} else {
-    echo "Falha na autenticação";
-}
+//echo $glpiApi->getTicket(1);

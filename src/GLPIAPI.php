@@ -17,48 +17,46 @@ class GLPIApi
         $this->sessionToken = null; 
     }
 
-    public function login()
-    {
-        $url = $this->apiUrl . '/initSession';
+    function initSession() {
 
-        $data = array(
-            'login_name' => $this->username,
-            'login_password' => $this->password,
-            'app_token' => $this->appToken
-        );
-
-        $ch = curl_init($url);
-
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-
-
+        $instancia = new self($this->apiUrl, $this->username, $this->password, $this->appToken, $this->sessionToken);
+        $url = $instancia->apiUrl;
+        $headers =[
+            'app-token' => $this->appToken,
+            'Authorization' => $this->password
+        ];
+        $curl = curl_init();   
+    
+        curl_setopt_array($curl, array(
+          CURLOPT_URL => $url,
+          CURLOPT_RETURNTRANSFER => true,
+          CURLOPT_ENCODING => '',
+          CURLOPT_MAXREDIRS => 10,
+          CURLOPT_TIMEOUT => 0,
+          CURLOPT_FOLLOWLOCATION => true,
+          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+          CURLOPT_CUSTOMREQUEST => 'GET',
+          CURLOPT_HTTPHEADER => $headers,
+        ));
+    
+        $instancia->closeSession($curl);
+        $response = curl_exec($curl);
+    
         
-
-        $response = curl_exec($ch);
-        var_dump($response);
-
-        curl_close($ch);
-
-        $responseData = json_decode($response, true);
-
-        if (isset($responseData['session_token'])) {
-            $this->sessionToken = $responseData['session_token'];
-            return true;
-        } else {
-            return false;
-        }
+        
+        return $response;
     }
+
+    public function closeSession($curl)
+    {
+        return curl_close($curl);
+    }
+    
     public function getTicket($ticketId)
     {
-        $endpoint = "tickets/$ticketId";
-        return $this->makeApiRequest($endpoint);
+        
     }
 
-    public function getSessionToken()
-    {
-        return $this->getSessionToken();
-    }
 }
+
 ?>
