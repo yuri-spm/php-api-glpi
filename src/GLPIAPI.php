@@ -1,5 +1,6 @@
 <?php
 
+include_once('Helpers.php');
 class GLPIApi
 {
     private $apiUrl;
@@ -8,55 +9,64 @@ class GLPIApi
     private $appToken;
     private $sessionToken;
 
-    public function __construct($apiUrl, $username, $password, $appToken)
+    public function __construct($apiUrl, $username, $password, $appToken, $sessionToken = '')
     {
         $this->apiUrl = $apiUrl;
         $this->username = $username;
         $this->password = $password;
         $this->appToken = $appToken;
-        $this->sessionToken = null; 
+        $this->sessionToken = $sessionToken;
     }
 
-    function initSession() {
 
-        $instancia = new self($this->apiUrl, $this->username, $this->password, $this->appToken, $this->sessionToken);
-        $url = $instancia->apiUrl;
-        $headers =[
+    // Initialize a new session
+    public function initSession()
+    {
+        // Make an API request to get the instance data
+        $instancia = api($this->apiUrl, $this->username, $this->password, $this->appToken, $this->sessionToken);
+
+        // Set the headers for the API request
+        $headers = [
             'app-token' => $this->appToken,
             'Authorization' => $this->password
         ];
-        $curl = curl_init();   
-    
-        curl_setopt_array($curl, array(
-          CURLOPT_URL => $url,
-          CURLOPT_RETURNTRANSFER => true,
-          CURLOPT_ENCODING => '',
-          CURLOPT_MAXREDIRS => 10,
-          CURLOPT_TIMEOUT => 0,
-          CURLOPT_FOLLOWLOCATION => true,
-          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-          CURLOPT_CUSTOMREQUEST => 'GET',
-          CURLOPT_HTTPHEADER => $headers,
-        ));
-    
-        $instancia->closeSession($curl);
-        $response = curl_exec($curl);
-    
-        
-        
+
+        // Create a new cURL session
+        $curlSession = api_createCurlSession($instancia->apiUrl, $headers);
+
+        // Execute the cURL session and get the response
+        $response = api_executeCurlSession($curlSession);
+
+        // Return the response
+        $this->sessionToken = $response;
         return $response;
     }
 
-    public function closeSession($curl)
+    // End the current session
+    public function killSession()
     {
-        return curl_close($curl);
-    }
-    
-    public function getTicket($ticketId)
-    {
+        // Make an API request to get the instance data
+        $instancia = api($this->apiUrl, $this->username, $this->password, $this->appToken, $this->sessionToken);
+
+        // Set the URL for the API request to end the session
+        $url = $instancia->apiUrl . '/killSession';
+
+        // Log the URL for debugging purposes
+       
+        // Set the headers for the API request
+        $headers = [
+            'app-token' => $this->appToken,
+            'Session-Token' => $this->sessionToken,
+            'Authorization: Basic Z2xwaTp0ZXN0ZTEyMw==',
+        ];
+
+        var_dump($headers);
+      
+        $curl = api_createCurlSession($url, $headers);
+        $response = api_executeCurlSession($curl);
+
+        return $response;
+
         
     }
-
 }
-
-?>
