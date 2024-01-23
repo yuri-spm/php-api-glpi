@@ -41,17 +41,20 @@ class GLPIApi
         // Set the URL for the API request to end the session
         $url = $this->apiUrl . '/killSession';
 
-        // Log the URL for debugging purposes
+        $headers = array(
+            'app-token: ' . $this->appToken,
+            'Session-Token:' .$this->sessionToken,
+            'Authorization: Basic Z2xwaTouQURNX1MzcnYxYzMu',
+        );
+var_dump($headers);
+        $response =  api_session($url, $headers);
 
-        // Set the headers for the API request
-        $headers = [
-            'app-token' => $this->appToken,
-            'Authorization: Basic Z2xwaTp0ZXN0ZTEyMw==',
-        ];
+        $jsonData = json_decode($response, true);
 
-        //var_dump($headers);
-
-        $response = api_session($url, $headers);
+        if ($jsonData === null) {
+            echo 'Error decoding JSON response: ' . json_last_error_msg();
+            return null;
+        }
 
         return $response;
     }
@@ -73,7 +76,8 @@ class GLPIApi
         }
 
         if (isset($jsonData['session_token'])) {
-            return $jsonData['session_token'];
+            $this->sessionToken =  $jsonData['session_token'];
+            return $this->sessionToken;
         } else {
             echo 'Session token not found in response.';
             return null;
