@@ -46,7 +46,7 @@ class GLPIApi
             'Session-Token:' .$this->sessionToken,
             'Authorization: Basic Z2xwaTouQURNX1MzcnYxYzMu',
         );
-var_dump($headers);
+
         $response =  api_session($url, $headers);
 
         $jsonData = json_decode($response, true);
