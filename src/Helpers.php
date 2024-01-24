@@ -5,7 +5,7 @@ function api($apiUrl, $username, $password, $appToken)
     return (new GLPIApi($apiUrl, $username, $password, $appToken));
 }
 
-function api_session($url, $headers, $request = 'GET')
+function api_session($url, $headers, $customRequest = 'GET')
 {
     $curl = curl_init();
 
@@ -17,7 +17,7 @@ function api_session($url, $headers, $request = 'GET')
         CURLOPT_TIMEOUT => 0,
         CURLOPT_FOLLOWLOCATION => true,
         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => $request,
+        CURLOPT_CUSTOMREQUEST => $customRequest,
         CURLOPT_HTTPHEADER => $headers,
     ));
 

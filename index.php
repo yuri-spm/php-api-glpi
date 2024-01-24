@@ -11,5 +11,7 @@ $apptoken = 'apptoken';
 
 $glpiApi = new GLPIApi($apiUrl, $username, $password, $apptoken);
 
-echo $glpiApi->initSession();
-
+$glpiApi->initSession();
+$glpiApi->getSessionToken();
+echo $glpiApi->request('listSearchOptions', 'Computer');
+$glpiApi->killSession();
