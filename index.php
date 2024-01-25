@@ -13,5 +13,5 @@ $glpiApi = new GLPIApi($apiUrl, $username, $password, $apptoken);
 
 $glpiApi->initSession();
 $glpiApi->getSessionToken();
-echo $glpiApi->request('listSearchOptions', 'Computer');
+echo $glpiApi->request('lostPassword', '', 'PATCH');
 $glpiApi->killSession();

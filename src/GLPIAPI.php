@@ -18,27 +18,23 @@ class GLPIApi
         $this->sessionToken = $sessionToken;
     }
 
-
-    // Initialize a new session
     public function initSession()
     {
 
-        // Set the headers for the API request
+
         $headers = [
             'app-token' => $this->appToken,
             'Authorization' => $this->password
         ];
 
-        // Create a new cURL session
         $response = api_session($this->apiUrl, $headers);
 
         return $response;
     }
 
-    // End the current session
     public function killSession()
     {
-        // Set the URL for the API request to end the session dlfj34hc3kc0fbg2uhm10v4m24
+      
         $url = $this->apiUrl . '/killSession';
 
         $headers = array(
@@ -84,7 +80,7 @@ class GLPIApi
         }
     }
 
-    public function request($custonUrl, $params = '', $customRequest = 'GET',)
+    public function request($custonUrl, $params = '', $customRequest = 'GET')
     {
         if($params !== ''){
             $url = $this->apiUrl .'/'. $custonUrl .'/'.$params;
@@ -102,4 +98,26 @@ class GLPIApi
         return $response;
 
     }
+
+    public function addItem($custonUrl, $params, $data = [],  $customRequest = 'POST', )
+    {
+        if($params !== ''){
+            $url = $this->apiUrl .'/'. $custonUrl .'/'.$params;
+        }else {
+            $url = $this->apiUrl .'/'. $custonUrl;
+        } 
+        
+        $inputData = json_encode($data);
+        $headers = array(
+            'app-token: ' . $this->appToken,
+            'Session-Token:' .$this->sessionToken,
+            'Authorization: Basic Z2xwaTouQURNX1MzcnYxYzMu',
+            'Content-Type: application/json',
+        );
+
+        $response = api_createrItem($url, $headers, $inputData);
+        return $response;
+
+    }
+
 }
