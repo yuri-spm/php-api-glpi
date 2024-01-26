@@ -1,6 +1,13 @@
 {
-    "require": {
-      "guzzlehttp/guzzle": "^7.8"
+  "config": {
+    "vendor-dir": "vendor"
+  },
+  "autoload": {
+    "psr-4": {
+      "src\\": "src/"
     }
+  },
+  "require": {
+    "guzzlehttp/guzzle": "^7.8"
   }
-  
+}
