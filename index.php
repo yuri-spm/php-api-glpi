@@ -12,6 +12,4 @@ $apptoken = 'apptoken';
 $glpiApi = new GLPIApi($apiUrl, $username, $password, $apptoken);
 
 $glpiApi->initSession();
-$glpiApi->getSessionToken();
-echo $glpiApi->request('lostPassword', '', 'PATCH');
-$glpiApi->killSession();
+echo $glpiApi->getSessionToken();
