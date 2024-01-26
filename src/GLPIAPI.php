@@ -80,7 +80,7 @@ class GLPIApi
         }
     }
 
-    public function request($custonUrl, $params = '', $customRequest = 'GET')
+    public function request($custonUrl, $params = '')
     {
         if($params !== ''){
             $url = $this->apiUrl .'/'. $custonUrl .'/'.$params;
@@ -94,12 +94,12 @@ class GLPIApi
             'Authorization: Basic Z2xwaTouQURNX1MzcnYxYzMu',
         );
 
-        $response =  api_session($url, $headers, $customRequest);
+        $response =  api_session($url, $headers);
         return $response;
 
     }
 
-    public function addItem($custonUrl, $params, $data = [],  $customRequest = 'POST', )
+    public function addItem($custonUrl, $params, $data = [])
     {
         if($params !== ''){
             $url = $this->apiUrl .'/'. $custonUrl .'/'.$params;
@@ -116,6 +116,48 @@ class GLPIApi
         );
 
         $response = api_createrItem($url, $headers, $inputData);
+        return $response;
+
+    }
+
+    public function updateItem($custonUrl, $params, $data = [])
+    {
+        if($params !== ''){
+            $url = $this->apiUrl .'/'. $custonUrl .'/'.$params;
+        }else {
+            $url = $this->apiUrl .'/'. $custonUrl;
+        } 
+        
+        $inputData = json_encode($data);
+        $headers = array(
+            'app-token: ' . $this->appToken,
+            'Session-Token:' .$this->sessionToken,
+            'Authorization: Basic Z2xwaTouQURNX1MzcnYxYzMu',
+            'Content-Type: application/json',
+        );
+
+        $response = api_updateItem($url, $headers, $inputData);
+        return $response;
+
+    }
+
+    public function deleteItem($custonUrl, $params)
+    {
+        if($params !== ''){
+            $url = $this->apiUrl .'/'. $custonUrl .'/'.$params;
+        }else {
+            $url = $this->apiUrl .'/'. $custonUrl;
+        } 
+        
+      
+        $headers = array(
+            'app-token: ' . $this->appToken,
+            'Session-Token:' .$this->sessionToken,
+            'Authorization: Basic Z2xwaTouQURNX1MzcnYxYzMu',
+            'Content-Type: application/json',
+        );
+
+        $response = api_deleteItem($url, $headers);
         return $response;
 
     }
