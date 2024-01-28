@@ -10,7 +10,7 @@ class GLPIApi extends Client
     private $password;
     private $appToken;
     private $sessionToken;
-    
+
     /**
      * __construct
      *
@@ -29,7 +29,7 @@ class GLPIApi extends Client
         $this->appToken = $appToken;
         $this->sessionToken = $sessionToken;
     }
-    
+
     /**
      * initSession
      *
@@ -59,10 +59,9 @@ class GLPIApi extends Client
 
         $this->sessionToken = json_decode($response->getBody());
 
-        if($response->getStatusCode() == 200){
-            echo "Conectado com sucesso, seu session token e: ";
+        if ($response->getStatusCode() == 200) {
+            return "Conectado com sucesso, seu session token e:" . $this->sessionToken->session_token;
         }
-       
     }
 
     public function killSession()
@@ -72,21 +71,19 @@ class GLPIApi extends Client
         $headers = [
             'app-token' => $this->appToken,
             'Session-Token' => $this->sessionToken->session_token,
-            'Content-Type' => 'application/json',
-            'Authorization' => 'Basic Z2xwaTouQURNX1MzcnYxYzMu'
-          ];
+        ];
 
-        $body = json_encode([
-            'app_token' => $this->appToken
-        ]);
 
-        $url = $this->apiUrl . 'killSession';  
-          
-        $request = new Request('GET', $url, $headers,$body);
+        $url = $this->apiUrl . '/killSession';
+
+        $request = new Request('GET', $url, $headers);
 
         $response = $client->sendAsync($request)->wait();
 
-    }    
+        if ($response->getStatusCode() == 200) {
+            return "Sessão finalizada " . $this->sessionToken->session_token;
+        }
+    }
     /**
      * getSessionToken
      *
@@ -96,25 +93,66 @@ class GLPIApi extends Client
     {
         return $this->sessionToken->session_token;
     }
-
-    public function requestItem()
+    
+    /**
+     * requestItem
+     *
+     * @param  mixed $item
+     * @param  mixed $params
+     * @return void
+     */
+    public function requestItem($item, $params = null)
     {
+        $client = new Client();
 
+        if (isset($params)) {
+            $url = $this->apiUrl . '/' . $item . '/' . $params;
+        } else {
+            $url = $this->apiUrl . '/' . $item;
+        }
+
+        $headers = [
+            'Session-Token' => $this->sessionToken->session_token,
+            'app-token' => $this->appToken,
+            'Authorization' => 'Basic Z2xwaTouQURNX1MzcnYxYzMu'
+        ];
+
+        $request = new Request('GET', $url, $headers);
+        $response = $client->sendAsync($request)->wait();
+        return $response->getBody();
     }
 
-    public function addItem($custonUrl, $params, $data = [])
+    public function addItem($item, $params = [])
+    {
+        $client = new Client();
+
+        $url = $this->apiUrl . '/' . $item;
+
+        $headers = [
+            'Session-Token' => $this->sessionToken->session_token,
+            'app-token'   => $this->appToken,
+            'Content-Type'  => 'application/json',
+            'Authorization' => 'Basic Z2xwaTouQURNX1MzcnYxYzMu'
+        ];
+
+        $body = json_encode($params);
+
+        $request = new Request('POST', $url, $headers, $body);
+
+        $response = $client->sendAsync($request)->wait();
+
+        return $response->getBody();
+    }
+
+    public function updateItem()
     {
     }
 
-    public function updateItem($custonUrl, $params, $data = [])
+    public function deleteItem()
     {
     }
 
-    public function deleteItem($custonUrl, $params)
-    {
-    }
-
-    public function purgeItem($custonUrl, $params)
+    public function purgeItem()
     {
     }
 }
