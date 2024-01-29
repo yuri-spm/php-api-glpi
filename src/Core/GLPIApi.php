@@ -2,6 +2,7 @@
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Exception\RequestException;
 
 class GLPIApi extends Client
 {
@@ -53,14 +54,17 @@ class GLPIApi extends Client
 
         $uri =  $this->apiUrl . '/initSession';
 
-        $request = new Request('POST', $uri, $headers, $body);
-
-        $response = $client->sendAsync($request)->wait();
-
-        $this->sessionToken = json_decode($response->getBody());
-
-        if ($response->getStatusCode() == 200) {
+        try {
+            $request = new Request('POST', $uri, $headers, $body);
+            $response = $client->sendAsync($request)->wait();
+            $this->sessionToken = json_decode($response->getBody());
             return "Conectado com sucesso, seu session token e:" . $this->sessionToken->session_token;
+        } catch (RequestException $e) {
+
+            if ($e->hasResponse()) {
+
+                $response->getStatusCode();
+            }
         }
     }
 
@@ -84,16 +88,7 @@ class GLPIApi extends Client
             return "Sessão finalizada " . $this->sessionToken->session_token;
         }
     }
-    /**
-     * getSessionToken
-     *
-     * @return void
-     */
-    public function getSessionToken()
-    {
-        return $this->sessionToken->session_token;
-    }
-    
+
     /**
      * requestItem
      *
@@ -144,15 +139,81 @@ class GLPIApi extends Client
         return $response->getBody();
     }
 
-    public function updateItem()
+    public function updateItem($item, $id, $params)
     {
+        $client = new Client();
+
+        $url = $this->apiUrl . '/' . $item  . '/' . $id;
+
+        $headers = [
+            'Session-Token' => $this->sessionToken->session_token,
+            'app-token'   => $this->appToken,
+            'Content-Type'  => 'application/json',
+            'Authorization' => 'Basic Z2xwaTouQURNX1MzcnYxYzMu'
+        ];
+
+        $body = json_encode($params);
+
+        try {
+            $request = new Request('PUT', $url, $headers, $body);
+            $response = $client->sendAsync($request)->wait();
+            echo $response->getBody();
+        } catch (RequestException $e) {
+            echo "Erro ao atualizar";
+        }
     }
 
-    public function deleteItem()
+
+
+
+
+
+    public function deleteItem($item, $id)
     {
+        $client = new Client();
+
+        $url = $this->apiUrl . '/' . $item  . '/' . $id;
+
+        $headers = [
+            'Session-Token' => $this->sessionToken->session_token,
+            'app-token'   => $this->appToken,
+            'Content-Type'  => 'application/json',
+            'Authorization' => 'Basic Z2xwaTouQURNX1MzcnYxYzMu'
+        ];
+
+
+
+        try {
+            $request = new Request('DELETE', $url, $headers);
+            $response = $client->sendAsync($request)->wait();
+            echo $response->getBody();
+        } catch (\GuzzleHttp\Exception\RequestException $e) {
+            echo "Erro ao deletar $item com id $id";
+        }
     }
 
-    public function purgeItem()
+
+    public function purgeItem($item, $id)
     {
+        $client = new Client();
+
+        $url = $this->apiUrl . '/' . $item  . '/' . $id . '?force_purge=true';
+
+        $headers = [
+            'Session-Token' => $this->sessionToken->session_token,
+            'app-token'   => $this->appToken,
+            'Content-Type'  => 'application/json',
+            'Authorization' => 'Basic Z2xwaTouQURNX1MzcnYxYzMu'
+        ];
+
+
+
+        try {
+            $request = new Request('DELETE', $url, $headers);
+            $response = $client->sendAsync($request)->wait();
+            echo $response->getBody();
+        } catch (\GuzzleHttp\Exception\RequestException $e) {
+            echo "Erro ao deletar $item com id $id";
+        }
     }
 }
