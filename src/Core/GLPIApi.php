@@ -60,14 +60,18 @@ class GLPIApi extends Client
             $this->sessionToken = json_decode($response->getBody());
             return "Conectado com sucesso, seu session token e:" . $this->sessionToken->session_token;
         } catch (RequestException $e) {
-
             if ($e->hasResponse()) {
-
-                $response->getStatusCode();
+                $response = $e->getResponse();
+                return $response->getBody()->getContents();
             }
         }
     }
 
+    /**
+     * killSession
+     *
+     * @return void
+     */
     public function killSession()
     {
         $client = new Client();
@@ -77,15 +81,19 @@ class GLPIApi extends Client
             'Session-Token' => $this->sessionToken->session_token,
         ];
 
-
         $url = $this->apiUrl . '/killSession';
 
-        $request = new Request('GET', $url, $headers);
-
-        $response = $client->sendAsync($request)->wait();
-
-        if ($response->getStatusCode() == 200) {
-            return "Sessão finalizada " . $this->sessionToken->session_token;
+        try {
+            $request = new Request('GET', $url, $headers);
+            $response = $client->sendAsync($request)->wait();
+            if ($response->getStatusCode() == 200) {
+                return "Sessão finalizada ";
+            }
+        } catch (RequestException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                return $response->getBody()->getContents();
+            }
         }
     }
 
@@ -112,11 +120,25 @@ class GLPIApi extends Client
             'Authorization' => 'Basic Z2xwaTouQURNX1MzcnYxYzMu'
         ];
 
-        $request = new Request('GET', $url, $headers);
-        $response = $client->sendAsync($request)->wait();
-        return $response->getBody();
+        try {
+            $request = new Request('GET', $url, $headers);
+            $response = $client->sendAsync($request)->wait();
+            return $response->getBody();
+        } catch (RequestException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                return $response->getBody()->getContents();
+            }
+        }
     }
 
+    /**
+     * addItem
+     *
+     * @param  mixed $item
+     * @param  mixed $params
+     * @return void
+     */
     public function addItem($item, $params = [])
     {
         $client = new Client();
@@ -132,13 +154,26 @@ class GLPIApi extends Client
 
         $body = json_encode($params);
 
-        $request = new Request('POST', $url, $headers, $body);
-
-        $response = $client->sendAsync($request)->wait();
-
-        return $response->getBody();
+        try {
+            $request = new Request('POST', $url, $headers, $body);
+            $response = $client->sendAsync($request)->wait();
+            return $response->getBody();
+        } catch (RequestException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                return $response->getBody()->getContents();
+            }
+        }
     }
 
+    /**
+     * updateItem
+     *
+     * @param  mixed $item
+     * @param  mixed $id
+     * @param  mixed $params
+     * @return void
+     */
     public function updateItem($item, $id, $params)
     {
         $client = new Client();
@@ -159,15 +194,20 @@ class GLPIApi extends Client
             $response = $client->sendAsync($request)->wait();
             echo $response->getBody();
         } catch (RequestException $e) {
-            echo "Erro ao atualizar";
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                return $response->getBody()->getContents();
+            }
         }
     }
 
-
-
-
-
-
+    /**
+     * deleteItem
+     *
+     * @param  mixed $item
+     * @param  mixed $id
+     * @return void
+     */
     public function deleteItem($item, $id)
     {
         $client = new Client();
@@ -181,18 +221,26 @@ class GLPIApi extends Client
             'Authorization' => 'Basic Z2xwaTouQURNX1MzcnYxYzMu'
         ];
 
-
-
         try {
             $request = new Request('DELETE', $url, $headers);
             $response = $client->sendAsync($request)->wait();
             echo $response->getBody();
         } catch (\GuzzleHttp\Exception\RequestException $e) {
-            echo "Erro ao deletar $item com id $id";
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                return $response->getBody()->getContents();
+            }
         }
     }
 
 
+    /**
+     * purgeItem
+     *
+     * @param  mixed $item
+     * @param  mixed $id
+     * @return void
+     */
     public function purgeItem($item, $id)
     {
         $client = new Client();
@@ -206,14 +254,15 @@ class GLPIApi extends Client
             'Authorization' => 'Basic Z2xwaTouQURNX1MzcnYxYzMu'
         ];
 
-
-
         try {
             $request = new Request('DELETE', $url, $headers);
             $response = $client->sendAsync($request)->wait();
             echo $response->getBody();
         } catch (\GuzzleHttp\Exception\RequestException $e) {
-            echo "Erro ao deletar $item com id $id";
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                return $response->getBody()->getContents();
+            }
         }
     }
 }
