@@ -1,6 +1,7 @@
 <?php
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Utils;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Exception\RequestException;
 
@@ -264,5 +265,27 @@ class GLPIApi extends Client
                 return $response->getBody()->getContents();
             }
         }
+    }
+
+    public function sendDocuments()
+    {
+        $client = new Client();
+        $headers = [
+            'X-Atlassian-Token' => 'nocheck',            
+            'Content-type: multipart/form-data',
+            'Authorization' => 'Basic Z2xwaTouQURNX1MzcnYxYzMu'    
+        ];
+        $options = [
+            'multipart' => [
+                [
+                    'name' => 'file',
+                    'contents' => Utils::tryFopen('caminho', 'r'),
+                    'filename' => 'caminho',
+                    'headers'  => [
+                        'Content-Type' => '<Content-type header>'
+                    ]
+                ]
+            ]
+        ];
     }
 }
