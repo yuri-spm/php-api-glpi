@@ -1,0 +1,31 @@
+<?php
+
+require __DIR__ . '/vendor/autoload.php'; // Assuming Guzzle is installed via Composer
+
+use GuzzleHttp\Client;
+
+$client = new Client();
+
+$response = $client->request('POST', 'http://path/to/glpi/apirest.php/Document/', [
+    'headers' => [
+        'Content-Type' => 'multipart/form-data',
+        'Session-Token' => '83af7e620c83a50a18d3eac2f6ed05a3ca0bea62',
+        'App-Token' => 'f7g3csp8mgatg5ebc5elnazakw20i9fyev1qopya7'
+    ],
+    'multipart' => [
+        [
+            'name' => 'uploadManifest',
+            'contents' => json_encode(['input' => ['name' => 'Uploaded document', '_filename' => ['file.txt']]]),
+            'headers' => ['Content-Type' => 'application/json']
+        ],
+        [
+            'name' => 'filename[0]',
+            'contents' => fopen('file.txt', 'r') // Assuming 'file.txt' is in the same directory
+        ]
+    ]
+]);
+
+// Access the response
+echo $response->getStatusCode(); // 201
+echo $response->getHeaderLine('Location'); // http://path/to/glpi/api/Document/1
+echo $response->getBody()->getContents(); // {"id": 1, "message": "Document move succeeded.", "upload_result": {...}}
