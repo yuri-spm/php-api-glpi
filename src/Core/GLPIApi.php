@@ -267,25 +267,60 @@ class GLPIApi extends Client
         }
     }
 
-    public function sendDocuments()
+    public function sendDocuments($item, $filename)
     {
         $client = new Client();
+
+        $url = $this->apiUrl . '/' . $item;
+
+        $fileID = rand(100000, 999999);
+
+        var_dump($filename, $fileID);
+        
+       
+        $filename = file_get_contents($filename);
+
         $headers = [
-            'X-Atlassian-Token' => 'nocheck',            
-            'Content-type: multipart/form-data',
-            'Authorization' => 'Basic Z2xwaTouQURNX1MzcnYxYzMu'    
+            'Content-Type'  => 'application/json',
+            'Authorization' => 'Basic Z2xwaTouQURNX1MzcnYxYzMu',
+            'Session-Token' => $this->sessionToken->session_token,
+            'app-token' => $this->appToken,
         ];
-        $options = [
+        $body = [
             'multipart' => [
                 [
-                    'name' => 'file',
-                    'contents' => Utils::tryFopen('caminho', 'r'),
-                    'filename' => 'caminho',
-                    'headers'  => [
-                        'Content-Type' => '<Content-type header>'
+                    'name' => 'uploadManifest',
+                    'contents' => json_encode([
+                        'input' => [
+                            'name' => $filename,
+                            '_filename' => [$filename]
+                        ]
+                    ])
+                ],
+                [
+                    'name' => 'filename',
+                    'contents' => Utils::tryFopen('postman-cloud:///' . $fileID, 'r+'),
+                    'filename' => 'postman-cloud:///' . $fileID,
+                    'headers' => [
+                        'Content-Type' => '<Content-type header>' // Replace with actual content type
                     ]
                 ]
             ]
         ];
+    
+                    
+        $body = json_encode($body);
+        var_dump($body);
+        
+        try {
+            $request = new Request('POST', $url, $headers, $body);
+            $response =  $client->sendAsync($request)->wait();
+            echo $response->getBody();
+        } catch (\GuzzleHttp\Exception\RequestException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                return $response->getBody()->getContents();
+            }
+        }
     }
 }
