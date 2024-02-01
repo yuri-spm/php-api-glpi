@@ -82,14 +82,13 @@ class GLPIApi extends Client
             'Session-Token' => $this->sessionToken->session_token,
         ];
 
+
         $url = $this->apiUrl . '/killSession';
 
         try {
-            $request = new Request('GET', $url, $headers);
-            $response = $client->sendAsync($request)->wait();
-            if ($response->getStatusCode() == 200) {
+            $response = $client->request('GET', $url,['headers' => $headers]);
                 return "Sessão finalizada ";
-            }
+            
         } catch (RequestException $e) {
             if ($e->hasResponse()) {
                 $response = $e->getResponse();
@@ -122,8 +121,7 @@ class GLPIApi extends Client
         ];
 
         try {
-            $request = new Request('GET', $url, $headers);
-            $response = $client->sendAsync($request)->wait();
+            $response = $client->request('GET', $url, ['headers' => $headers]);
             return $response->getBody();
         } catch (RequestException $e) {
             if ($e->hasResponse()) {
@@ -156,8 +154,7 @@ class GLPIApi extends Client
         $body = json_encode($params);
 
         try {
-            $request = new Request('POST', $url, $headers, $body);
-            $response = $client->sendAsync($request)->wait();
+            $response = $client->request('POST', $url, ['headers' => $headers, 'body' => $body]);
             return $response->getBody();
         } catch (RequestException $e) {
             if ($e->hasResponse()) {
@@ -191,8 +188,7 @@ class GLPIApi extends Client
         $body = json_encode($params);
 
         try {
-            $request = new Request('PUT', $url, $headers, $body);
-            $response = $client->sendAsync($request)->wait();
+            $response = $client->request('PUT', $url, $headers, $body);
             echo $response->getBody();
         } catch (RequestException $e) {
             if ($e->hasResponse()) {
@@ -223,8 +219,7 @@ class GLPIApi extends Client
         ];
 
         try {
-            $request = new Request('DELETE', $url, $headers);
-            $response = $client->sendAsync($request)->wait();
+            $response = $client->request('DELETE', $url, ['headers' => $headers]);
             echo $response->getBody();
         } catch (\GuzzleHttp\Exception\RequestException $e) {
             if ($e->hasResponse()) {
@@ -256,8 +251,7 @@ class GLPIApi extends Client
         ];
 
         try {
-            $request = new Request('DELETE', $url, $headers);
-            $response = $client->sendAsync($request)->wait();
+            $response = $client->request('DELETE', $url, ['headers' => $headers]);
             echo $response->getBody();
         } catch (\GuzzleHttp\Exception\RequestException $e) {
             if ($e->hasResponse()) {
@@ -267,60 +261,57 @@ class GLPIApi extends Client
         }
     }
 
-    public function sendDocuments($item, $filename)
-    {
-        $client = new Client();
-
-        $url = $this->apiUrl . '/' . $item;
-
-        $fileID = rand(100000, 999999);
-
-        var_dump($filename, $fileID);
-        
-       
-        $filename = file_get_contents($filename);
-
-        $headers = [
-            'Content-Type'  => 'application/json',
-            'Authorization' => 'Basic Z2xwaTouQURNX1MzcnYxYzMu',
-            'Session-Token' => $this->sessionToken->session_token,
-            'app-token' => $this->appToken,
-        ];
-        $body = [
-            'multipart' => [
-                [
-                    'name' => 'uploadManifest',
-                    'contents' => json_encode([
-                        'input' => [
-                            'name' => $filename,
-                            '_filename' => [$filename]
-                        ]
-                    ])
-                ],
-                [
-                    'name' => 'filename',
-                    'contents' => Utils::tryFopen('postman-cloud:///' . $fileID, 'r+'),
-                    'filename' => 'postman-cloud:///' . $fileID,
-                    'headers' => [
-                        'Content-Type' => '<Content-type header>' // Replace with actual content type
-                    ]
-                ]
-            ]
-        ];
+    // 
     
-                    
-        $body = json_encode($body);
-        var_dump($body);
+    public function sendDocuments($item, $filename)
+{
+    $client = new Client();
+
+    $url = $this->apiUrl . '/' . $item;
+
+    if (!file_exists($filename)) {
+        echo "Arquivo não encontrado";
+        return;
+    }
+
+    $headers = [
+        'Authorization' => 'Basic Z2xwaTouQURNX1MzcnYxYzMu',
+        'Session-Token' => $this->sessionToken->session_token,
+        'app-token' => $this->appToken,
+    ];
+
+    $body = [
+        'multipart' => [
+            [
+                'name' => 'uploadManifest',
+                'contents' => json_encode([
+                    'input' => [
+                        'name' => $filename,
+                        '_filename' => [$filename]
+                    ]
+                ])
+            ],
+            [
+                'name' => 'filename',
+                'contents' => Utils::tryFopen($filename, 'r'),
+                'filename' =>  basename($filename),
+            ],
+        ],
+    ];
+
+    try {
         
-        try {
-            $request = new Request('POST', $url, $headers, $body);
-            $response =  $client->sendAsync($request)->wait();
-            echo $response->getBody();
-        } catch (\GuzzleHttp\Exception\RequestException $e) {
-            if ($e->hasResponse()) {
-                $response = $e->getResponse();
-                return $response->getBody()->getContents();
-            }
+        $response = $client->request('POST', $url, [
+            'headers' => $headers,
+            'multipart' => $body['multipart'],
+        ]);
+
+        echo $response->getBody();
+    } catch (RequestException $e) {
+        if ($e->hasResponse()) {
+            $response = $e->getResponse();
+            echo $response->getBody()->getContents();
         }
     }
+}
 }
