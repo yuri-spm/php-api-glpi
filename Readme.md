@@ -17,7 +17,7 @@ Este programa de teste foi elaborado para executar diversas funcionalidades esse
 ## ➡️ Instalação 
 
 1. Instale o programa dentro da pasta `/var/www/html` ou analise o diretório onde o PHP está instalado para renderizar.
-2. Execute o comando `composer dump-autoload` para baixar as bibliotecas necessárias.
+2. Execute o comando `composer update` para baixar as bibliotecas necessárias.
 3. Acesse o diretório do programa via web e execute.
 
 
