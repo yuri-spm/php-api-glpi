@@ -27,11 +27,20 @@ echo "</pre>";
 //    ]
 // ];
 
+// echo "</br>";
+// echo "<pre>";
+// var_dump($glpiApi->addItem('Computer',$data));
+// echo "</pre>";
+
 echo "</br>";
 echo "<pre>";
 var_dump($glpiApi->requestItem('Ticket',2406200076));
 echo "</pre>";
+
+echo "</br>";
+echo "<pre>";
 //$glpiApi->purgeItem('Computer',10);
+echo "</pre>";
 
 echo "</br>";
 echo $glpiApi->killSession();
