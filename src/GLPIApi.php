@@ -43,14 +43,14 @@ class GLPIApi
                 'status' => 'success',
                 'message' => 'Conectado com sucesso',
                 'session_token' => $this->sessionToken->session_token
-            ]);
+            ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
         } catch (RequestException $e) {
             if ($e->hasResponse()) {
                 $response = $e->getResponse();
                 return json_encode([
                     'status' => 'error',
                     'message' => $response->getBody()->getContents()
-                ]);
+                ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
             }
         }
     }
@@ -100,19 +100,17 @@ class GLPIApi
             return json_encode([
                 'status' => 'success',
                 'data' => json_decode($response->getBody())
-            ]);
+            ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
         } catch (RequestException $e) {
             if ($e->hasResponse()) {
                 $response = $e->getResponse();
                 return json_encode([
                     'status' => 'error',
                     'message' => $response->getBody()->getContents()
-                ]);
+                ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
             }
         }
     }
-
-    // Os métodos restantes seguem o mesmo padrão...
 
     public function addItem($item, $params = [])
     {
@@ -134,14 +132,14 @@ class GLPIApi
             return json_encode([
                 'status' => 'success',
                 'data' => json_decode($response->getBody())
-            ]);
+            ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
         } catch (RequestException $e) {
             if ($e->hasResponse()) {
                 $response = $e->getResponse();
                 return json_encode([
                     'status' => 'error',
                     'message' => $response->getBody()->getContents()
-                ]);
+                ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
             }
         }
     }
@@ -166,14 +164,14 @@ class GLPIApi
             return json_encode([
                 'status' => 'success',
                 'data' => json_decode($response->getBody())
-            ]);
+            ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
         } catch (RequestException $e) {
             if ($e->hasResponse()) {
                 $response = $e->getResponse();
                 return json_encode([
                     'status' => 'error',
                     'message' => $response->getBody()->getContents()
-                ]);
+                ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
             }
         }
     }
@@ -196,14 +194,14 @@ class GLPIApi
             return json_encode([
                 'status' => 'success',
                 'data' => json_decode($response->getBody())
-            ]);
+            ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
         } catch (RequestException $e) {
             if ($e->hasResponse()) {
                 $response = $e->getResponse();
                 return json_encode([
                     'status' => 'error',
                     'message' => $response->getBody()->getContents()
-                ]);
+                ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
             }
         }
     }
@@ -226,14 +224,14 @@ class GLPIApi
             return json_encode([
                 'status' => 'success',
                 'data' => json_decode($response->getBody())
-            ]);
+            ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
         } catch (RequestException $e) {
             if ($e->hasResponse()) {
                 $response = $e->getResponse();
                 return json_encode([
                     'status' => 'error',
                     'message' => $response->getBody()->getContents()
-                ]);
+                ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
             }
         }
     }
@@ -248,7 +246,7 @@ class GLPIApi
             return json_encode([
                 'status' => 'error',
                 'message' => 'Arquivo não encontrado'
-            ]);
+            ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
         }
 
         $headers = [
@@ -285,14 +283,14 @@ class GLPIApi
             return json_encode([
                 'status' => 'success',
                 'data' => json_decode($response->getBody())
-            ]);
+            ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
         } catch (RequestException $e) {
             if ($e->hasResponse()) {
                 $response = $e->getResponse();
                 return json_encode([
                     'status' => 'error',
                     'message' => $response->getBody()->getContents()
-                ]);
+                ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
             }
         }
     }
