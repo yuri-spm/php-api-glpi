@@ -3,44 +3,82 @@
 require 'vendor/autoload.php';
 require_once 'src/GLPIApi.php';
 
-// O restante do seu código...
 
 
 
+$apiUrl    = 'url';
+$userToken = 'userToken';
+$appToken  = 'appToken';
 
-$apiUrl = 'url';
-$userToken = 'user_token';
-$appToken= 'app_token';
 
+//Create Session
 
 $glpiApi = new GLPIApi($apiUrl, $userToken, $appToken);
-echo "<pre>";
-var_dump($glpiApi->initSession());
-echo "</pre>";
+$sessionData = $glpiApi->initSession();
 
-// $data = [
-//     "input" =>  [
-//         "entities_id" => 0,
-//         "name" => "PC 4",
-//         "contact_num" => "PC2_GLPI",
-//         "comment" => "Atualizado via API",
-//    ]
-// ];
+ob_start();
+var_dump($sessionData);
+$varDumpOutput = ob_get_clean();
 
-// echo "</br>";
-// echo "<pre>";
-// var_dump($glpiApi->addItem('Computer',$data));
-// echo "</pre>";
+GLPIApi::render($varDumpOutput);
 
-echo "</br>";
-echo "<pre>";
-var_dump($glpiApi->requestItem('Ticket',2406200076));
-echo "</pre>";
 
-echo "</br>";
-echo "<pre>";
-//$glpiApi->purgeItem('Computer',10);
-echo "</pre>";
+//Find Ticket
 
-echo "</br>";
-echo $glpiApi->killSession();
+$findTicket = $glpiApi->requestItem('Ticket',9);
+ob_start();
+var_dump($findTicket);
+$findTicketOutput = ob_get_clean();
+
+GLPIApi::render($findTicketOutput);
+
+//Create Ticket
+$data = [
+    "input" =>  [
+        "entities_id" => 0,
+        "name" => "Titulo do meu chamado Criado pela API",
+        "content" => "Titulo do meu chamado Criado pela API",
+        "_users_id_requester" => 1,
+   ]
+];
+$createTicket = $glpiApi->addItem('Ticket', $data);
+ob_start();
+var_dump($createTicket);
+$createTicketOutput = ob_get_clean();
+
+GLPIApi::render($createTicketOutput);
+
+
+
+//Update Ticket
+$data = [
+    "input" =>  [
+       "_users_id_requester" => 6
+   ]
+];
+$updateTicket = $glpiApi->updateItem('Ticket',201, $data);
+ob_start();
+var_dump($updateTicket);
+$updateTicketOutput = ob_get_clean();
+
+GLPIApi::render($updateTicketOutput);
+
+
+
+//Send File
+$file = 'src/files/support3.png';
+$sendDocuments = $glpiApi->sendDocuments('Document', $file, 'Suporte.png');
+
+ob_start();
+var_dump($sendDocuments);
+$sendDocumentsOutput = ob_get_clean();
+
+GLPIApi::render($sendDocumentsOutput);
+
+//Kill Session
+$killSessionData = $glpiApi->killSession();
+ob_start();
+var_dump($killSessionData);
+$killSessionOutput = ob_get_clean();
+
+GLPIApi::render($killSessionOutput);
