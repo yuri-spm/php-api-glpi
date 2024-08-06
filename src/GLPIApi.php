@@ -41,8 +41,8 @@ class GLPIApi
             $this->sessionToken = json_decode($response->getBody());
             return json_encode([
                 'status' => 'success',
+                'session_token' => $this->sessionToken->session_token,
                 'message' => 'Conectado com sucesso',
-                'session_token' => $this->sessionToken->session_token
             ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
         } catch (RequestException $e) {
             if ($e->hasResponse()) {
@@ -236,7 +236,7 @@ class GLPIApi
         }
     }
 
-    public function sendDocuments($item, $filename)
+    public function sendDocuments($item, $filename, $name)
     {
         $client = new Client();
 
@@ -250,7 +250,6 @@ class GLPIApi
         }
 
         $headers = [
-            'Authorization' => 'Basic Z2xwaTouQURNX1MzcnYxYzMu',
             'Session-Token' => $this->sessionToken->session_token,
             'app-token' => $this->appToken,
         ];
@@ -261,7 +260,7 @@ class GLPIApi
                     'name' => 'uploadManifest',
                     'contents' => json_encode([
                         'input' => [
-                            'name' => $filename,
+                            'name' => $name,
                             '_filename' => [$filename]
                         ]
                     ])
@@ -293,5 +292,13 @@ class GLPIApi
                 ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
             }
         }
+    }
+
+    public static function render(         $result) {
+        echo "<div style='background-color: #f0f0f0;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px;
+            font-family: Arial, sans-serif;'> <pre>" . $result . "</pre></div>";
     }
 }
