@@ -1,5 +1,7 @@
 # Integration Code with GLPi API 🚀
 
+If you liked the repository, please add a star to help out.
+
 This test program was designed to perform various essential functionalities using the GLPI API.
 
 ## ➡️ Code Functionalities
