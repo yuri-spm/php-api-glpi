@@ -63,7 +63,21 @@ $updateTicketOutput = ob_get_clean();
 
 GLPIApi::render($updateTicketOutput);
 
+//Delete Ticket
+$deleteTicket = $glpiApi->deleteItem('Ticket', 2406200096);
+ob_start();
+var_dump($deleteTicket);
+$deleteTicketOutput = ob_get_clean();
 
+GLPIApi::render($deleteTicketOutput);
+
+//Purge Ticket
+$purgeTicket = $glpiApi->purgeItem('Ticket', 2406200096);
+ob_start();
+var_dump($purgeTicket);
+$purgeTicketOutput = ob_get_clean();
+
+GLPIApi::render($purgeTicketOutput);
 
 //Send File
 $file = 'src/files/support3.png';
