@@ -19,6 +19,10 @@ This test program was designed to perform various essential functionalities usin
 
 1. Install the program inside the /var/www/html folder or analyze the directory where PHP is installed for rendering.
 2. Execute the composer dump-autoload command to download the necessary libraries.
+
+```shell
+composer dump-autoload
+```
 3. Access the program directory via the web and execute.
 
 ## ➡️ Screens
