@@ -4,17 +4,6 @@ If you liked the repository, please add a star to help out.
 
 This test program was designed to perform various essential functionalities using the GLPI API.
 
-## ➡️ Code Functionalities
-
-1. **Initiate session:** initSession()
-2. **End sessão:** killSession()
-3. **Request:** requestItem()
-4. **Add:** addItem()
-5. **Update:** updateItem()
-6. **Soft delete (move to trash):** deleteItem()
-7. **Hard delete (permanetly):** purgeItem()
-8. **Document submission:** sendDocuments()
-
 ## ➡️ Installation
 
 1. Install the program inside the /var/www/html folder or analyze the directory where PHP is installed for rendering.
@@ -23,15 +12,115 @@ This test program was designed to perform various essential functionalities usin
 ```shell
 composer dump-autoload
 ```
-3. Access the program directory via the web and execute.
 
-## ➡️ Screens
 
-![alt text](public/image.png)
-![alt text](public/image-1.png)
-![alt text](public/image-2.png)
-![alt text](public/image-3.png)
-![alt text](public/image-4.png)
+## ➡️ Code Functionalities
+
+1. **Initiate session:** initSession();
+
+```php
+$apiUrl    = 'url';
+$userToken = 'userToken';
+$appToken  = 'appToken';
+
+
+$glpiApi = new GLPIApi($apiUrl, $userToken, $appToken);
+$sessionData = $glpiApi->initSession();
+
+ob_start();
+var_dump($sessionData);
+$varDumpOutput = ob_get_clean();
+
+GLPIApi::render($varDumpOutput);
+```
+2. **End sessão:** killSession()
+
+```php
+$killSessionData = $glpiApi->killSession();
+ob_start();
+var_dump($killSessionData);
+$killSessionOutput = ob_get_clean();
+
+GLPIApi::render($killSessionOutput);
+```
+
+3. **Request:** requestItem()
+
+```php
+$findTicket = $glpiApi->requestItem('Ticket',9);
+ob_start();
+var_dump($findTicket);
+$findTicketOutput = ob_get_clean();
+
+GLPIApi::render($findTicketOutput);
+```
+
+4. **Add:** addItem()
+
+```php
+$data = [
+    "input" =>  [
+        "entities_id" => 0,
+        "name" => "Titulo do meu chamado Criado pela API",
+        "content" => "Titulo do meu chamado Criado pela API",
+        "_users_id_requester" => 1,
+   ]
+];
+$createTicket = $glpiApi->addItem('Ticket', $data);
+ob_start();
+var_dump($createTicket);
+$createTicketOutput = ob_get_clean();
+
+GLPIApi::render($createTicketOutput);
+```
+
+
+5. **Update:** updateItem()
+```php
+$data = [
+    "input" =>  [
+       "_users_id_requester" => 6
+   ]
+];
+$updateTicket = $glpiApi->updateItem('Ticket',2406200096, $data);
+ob_start();
+var_dump($updateTicket);
+$updateTicketOutput = ob_get_clean();
+
+GLPIApi::render($updateTicketOutput);
+```
+
+6. **Soft delete (move to trash):** deleteItem()
+```php
+$deleteTicket = $glpiApi->deleteItem('Ticket', 2406200096);
+ob_start();
+var_dump($deleteTicket);
+$deleteTicketOutput = ob_get_clean();
+
+GLPIApi::render($deleteTicketOutput);
+```
+7. **Hard delete (permanetly):** purgeItem()
+```php
+$purgeTicket = $glpiApi->purgeItem('Ticket', 2406200096);
+ob_start();
+var_dump($purgeTicket);
+$purgeTicketOutput = ob_get_clean();
+
+GLPIApi::render($purgeTicketOutput);
+```
+8. **Document submission:** sendDocuments()
+```php
+$file = 'src/files/support3.png';
+$sendDocuments = $glpiApi->sendDocuments('Document', $file, 'Suporte.png');
+
+ob_start();
+var_dump($sendDocuments);
+$sendDocumentsOutput = ob_get_clean();
+
+GLPIApi::render($sendDocumentsOutput);
+```
+
+
 
 
 #glpi #api #php
