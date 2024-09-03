@@ -4,8 +4,6 @@ require 'vendor/autoload.php';
 require_once 'src/GLPIApi.php';
 
 
-
-
 $apiUrl    = 'url';
 $userToken = 'userToken';
 $appToken  = 'appToken';
