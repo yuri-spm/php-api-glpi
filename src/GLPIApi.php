@@ -20,104 +20,83 @@ class GLPIApi
         $this->sessionToken = $sessionToken;
     }
 
+
+    public function sendRequest($method, $endpoint, $headers = [], $body = null)
+    {
+       $client = new Client();
+       
+       $url = $this->apiUrl . $endpoint;
+
+       $options = [
+        'headers' => $headers
+       ];
+
+       if($body){
+            $options['body'] = json_encode($body);
+       }
+
+        try {
+            $response = $client->request($method, $url, $options);
+            return json_encode([
+                'status' => 'success',
+                'data' => json_decode($response->getBody())
+            ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+        }  catch (RequestException $e) {
+            if ($e->hasResponse()) {
+                return json_encode([
+                    'status' => 'error',
+                    'message' => $e->getResponse()->getBody()->getContents()
+                ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+            }
+            return json_encode([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+        }
+    }
+
+
     public function initSession()
     {
-        $client = new Client();
-
         $headers = [
             'Content-Type' => 'application/json',
         ];
 
-        $body = json_encode([
+        $body = [
             'app_token' => $this->appToken,
             'user_token'=> $this->userToken
-        ]);
+        ];
 
-        $uri = $this->apiUrl . '/initSession';
+        $result = $this->sendRequest('POST', '/initSession', $headers, $body);
+        $this->sessionToken = json_decode($result)->data->session_token ?? null;
 
-        try {
-            $request = new Request('POST', $uri, $headers, $body);
-            $response = $client->sendAsync($request)->wait();
-            $this->sessionToken = json_decode($response->getBody());
-            return json_encode([
-                'status' => 'success',
-                'session_token' => $this->sessionToken->session_token,
-                'message' => 'Conectado com sucesso',
-            ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-        } catch (RequestException $e) {
-            if ($e->hasResponse()) {
-                $response = $e->getResponse();
-                return json_encode([
-                    'status' => 'error',
-                    'message' => $response->getBody()->getContents()
-                ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-            }
-        }
+        return $result;
     }
 
     public function killSession()
     {
-        $client = new Client();
-
         $headers = [
             'app-token' => $this->appToken,
             'Session-Token' => $this->sessionToken->session_token,
         ];
 
-        $url = $this->apiUrl . '/killSession';
-
-        try {
-            $response = $client->request('GET', $url, ['headers' => $headers]);
-            return json_encode([
-                'status' => 'success',
-                'message' => 'Sessão finalizada'
-            ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-        } catch (RequestException $e) {
-            if ($e->hasResponse()) {
-                $response = $e->getResponse();
-                return json_encode([
-                    'status' => 'error',
-                    'message' => $response->getBody()->getContents()
-                ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-            }
-        }
+        return $this->sendRequest('GET', '/killSession', $headers);
     }
 
     public function requestItem($item, $params = null)
     {
-        $client = new Client();
-
-        $url = $this->apiUrl . '/' . $item . '/' . ($params ?? '');
-
         $headers = [
             'Session-Token' => $this->sessionToken->session_token,
             'app-token' => $this->appToken,
             'Authorization' => 'Basic Z2xwaTouQURNX1MzcnYxYzMu'
         ];
 
-        try {
-            $response = $client->request('GET', $url, ['headers' => $headers]);
-            return json_encode([
-                'status' => 'success',
-                'data' => json_decode($response->getBody())
-            ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-        } catch (RequestException $e) {
-            if ($e->hasResponse()) {
-                $response = $e->getResponse();
-                return json_encode([
-                    'status' => 'error',
-                    'message' => $response->getBody()->getContents()
-                ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-            }
-        }
+        return $this->sendRequest('GET', '/' . $item . '/' . ($params ?? ''), $headers);
     }
+
 
     public function addItem($item, $params = [])
     {
-        $client = new Client();
-
-        $url = $this->apiUrl . '/' . $item;
-
         $headers = [
             'Session-Token' => $this->sessionToken->session_token,
             'app-token' => $this->appToken,
@@ -125,31 +104,11 @@ class GLPIApi
             'Authorization' => 'Basic Z2xwaTouQURNX1MzcnYxYzMu'
         ];
 
-        $body = json_encode($params);
-
-        try {
-            $response = $client->request('POST', $url, ['headers' => $headers, 'body' => $body]);
-            return json_encode([
-                'status' => 'success',
-                'data' => json_decode($response->getBody())
-            ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-        } catch (RequestException $e) {
-            if ($e->hasResponse()) {
-                $response = $e->getResponse();
-                return json_encode([
-                    'status' => 'error',
-                    'message' => $response->getBody()->getContents()
-                ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-            }
-        }
+        return $this->sendRequest('POST', '/' . $item, $headers, $params);
     }
 
     public function updateItem($item, $id, $params)
     {
-        $client = new Client();
-
-        $url = $this->apiUrl . '/' . $item . '/' . $id;
-
         $headers = [
             'Session-Token' => $this->sessionToken->session_token,
             'app-token' => $this->appToken,
@@ -157,31 +116,11 @@ class GLPIApi
             'Authorization' => 'Basic Z2xwaTouQURNX1MzcnYxYzMu'
         ];
 
-        $body = json_encode($params);
-
-        try {
-            $response = $client->request('PUT', $url, ['headers' => $headers, 'body' => $body]);
-            return json_encode([
-                'status' => 'success',
-                'data' => json_decode($response->getBody())
-            ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-        } catch (RequestException $e) {
-            if ($e->hasResponse()) {
-                $response = $e->getResponse();
-                return json_encode([
-                    'status' => 'error',
-                    'message' => $response->getBody()->getContents()
-                ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-            }
-        }
+        return $this->sendRequest('PUT', '/' . $item . '/' . $id, $headers, $params);
     }
 
     public function deleteItem($item, $id)
     {
-        $client = new Client();
-
-        $url = $this->apiUrl . '/' . $item . '/' . $id;
-
         $headers = [
             'Session-Token' => $this->sessionToken->session_token,
             'app-token' => $this->appToken,
@@ -189,29 +128,11 @@ class GLPIApi
             'Authorization' => 'Basic Z2xwaTouQURNX1MzcnYxYzMu'
         ];
 
-        try {
-            $response = $client->request('DELETE', $url, ['headers' => $headers]);
-            return json_encode([
-                'status' => 'success',
-                'data' => json_decode($response->getBody())
-            ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-        } catch (RequestException $e) {
-            if ($e->hasResponse()) {
-                $response = $e->getResponse();
-                return json_encode([
-                    'status' => 'error',
-                    'message' => $response->getBody()->getContents()
-                ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-            }
-        }
+        return $this->sendRequest('DELETE', '/' . $item . '/' . $id, $headers);
     }
 
     public function purgeItem($item, $id)
     {
-        $client = new Client();
-
-        $url = $this->apiUrl . '/' . $item . '/' . $id . '?force_purge=true';
-
         $headers = [
             'Session-Token' => $this->sessionToken->session_token,
             'app-token' => $this->appToken,
@@ -219,29 +140,11 @@ class GLPIApi
             'Authorization' => 'Basic Z2xwaTouQURNX1MzcnYxYzMu'
         ];
 
-        try {
-            $response = $client->request('DELETE', $url, ['headers' => $headers]);
-            return json_encode([
-                'status' => 'success',
-                'data' => json_decode($response->getBody())
-            ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-        } catch (RequestException $e) {
-            if ($e->hasResponse()) {
-                $response = $e->getResponse();
-                return json_encode([
-                    'status' => 'error',
-                    'message' => $response->getBody()->getContents()
-                ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-            }
-        }
+        return $this->sendRequest('DELETE', '/' . $item . '/' . $id . '?force_purge=true', $headers);
     }
 
     public function sendDocuments($item, $filename, $name)
     {
-        $client = new Client();
-
-        $url = $this->apiUrl . '/' . $item;
-
         if (!file_exists($filename)) {
             return json_encode([
                 'status' => 'error',
@@ -254,51 +157,33 @@ class GLPIApi
             'app-token' => $this->appToken,
         ];
 
-        $body = [
-            'multipart' => [
-                [
-                    'name' => 'uploadManifest',
-                    'contents' => json_encode([
-                        'input' => [
-                            'name' => $name,
-                            '_filename' => [$filename]
-                        ]
-                    ])
-                ],
-                [
-                    'name' => 'filename',
-                    'contents' => Utils::tryFopen($filename, 'r'),
-                    'filename' => basename($filename),
-                ],
+        $multipart = [
+            [
+                'name' => 'uploadManifest',
+                'contents' => json_encode([
+                    'input' => [
+                        'name' => $name,
+                        '_filename' => [$filename]
+                    ]
+                ])
+            ],
+            [
+                'name' => 'filename',
+                'contents' => Utils::tryFopen($filename, 'r'),
+                'filename' => basename($filename),
             ],
         ];
 
-        try {
-            $response = $client->request('POST', $url, [
-                'headers' => $headers,
-                'multipart' => $body['multipart'],
-            ]);
-
-            return json_encode([
-                'status' => 'success',
-                'data' => json_decode($response->getBody())
-            ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-        } catch (RequestException $e) {
-            if ($e->hasResponse()) {
-                $response = $e->getResponse();
-                return json_encode([
-                    'status' => 'error',
-                    'message' => $response->getBody()->getContents()
-                ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-            }
-        }
+        return $this->sendRequest('POST', '/' . $item, $headers, ['multipart' => $multipart]);
     }
 
-    public static function render(         $result) {
+    public static function render($result) {
         echo "<div style='background-color: #f0f0f0;
             border-radius: 10px;
             padding: 15px;
             margin: 20px;
             font-family: Arial, sans-serif;'> <pre>" . $result . "</pre></div>";
     }
+
+    
 }
