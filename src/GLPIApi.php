@@ -23,61 +23,88 @@ class GLPIApi
 
     public function sendRequest($method, $endpoint, $headers = [], $body = null)
     {
-       $client = new Client();
-       
-       $url = $this->apiUrl . $endpoint;
+        $client = new Client();
+        $url = $this->apiUrl . $endpoint;
 
-       $options = [
-        'headers' => $headers
-       ];
+        $options = [
+            'headers' => $headers
+        ];
 
-       if($body){
+        if ($body) {
             $options['body'] = json_encode($body);
-       }
+        }
 
         try {
             $response = $client->request($method, $url, $options);
-            return json_encode([
-                'status' => 'success',
-                'data' => json_decode($response->getBody())
-            ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-        }  catch (RequestException $e) {
+            $responseBody = json_decode($response->getBody());
+
+            return $responseBody;
+        } catch (RequestException $e) {
             if ($e->hasResponse()) {
-                return json_encode([
-                    'status' => 'error',
-                    'message' => $e->getResponse()->getBody()->getContents()
-                ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+                return json_decode($e->getResponse()->getBody()->getContents());
             }
-            return json_encode([
-                'status' => 'error',
-                'message' => $e->getMessage()
-            ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+            return json_decode($e->getMessage());
         }
     }
 
 
     public function initSession()
     {
+        $client = new Client();
+
         $headers = [
             'Content-Type' => 'application/json',
         ];
 
-        $body = [
+        $body = json_encode([
             'app_token' => $this->appToken,
-            'user_token'=> $this->userToken
-        ];
+            'user_token' => $this->userToken
+        ]);
 
-        $result = $this->sendRequest('POST', '/initSession', $headers, $body);
-        $this->sessionToken = json_decode($result)->data->session_token ?? null;
+        $uri = $this->apiUrl . '/initSession';
 
-        return $result;
+        try {
+            $request = new Request('POST', $uri, $headers, $body);
+            $response = $client->send($request); // `send` é síncrono e mais confiável aqui
+            $responseBody = json_decode($response->getBody()->getContents(), true);
+
+            if (isset($responseBody['session_token']) && !empty($responseBody['session_token'])) {
+                $this->sessionToken = $responseBody['session_token'];
+
+                return json_encode([
+                    'status' => 'success',
+                    'session_token' => $this->sessionToken,
+                    'message' => 'Conectado com sucesso',
+                ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+            } else {
+                return json_encode([
+                    'status' => 'error',
+                    'message' => 'Falha ao obter session_token',
+                ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+            }
+        } catch (RequestException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                return json_encode([
+                    'status' => 'error',
+                    'message' => $response->getBody()->getContents()
+                ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+            } else {
+                return json_encode([
+                    'status' => 'error',
+                    'message' => $e->getMessage(),
+                ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+            }
+        }
     }
+
+
 
     public function killSession()
     {
         $headers = [
             'app-token' => $this->appToken,
-            'Session-Token' => $this->sessionToken->session_token,
+            'Session-Token' => $this->sessionToken,
         ];
 
         return $this->sendRequest('GET', '/killSession', $headers);
@@ -86,7 +113,7 @@ class GLPIApi
     public function requestItem($item, $params = null)
     {
         $headers = [
-            'Session-Token' => $this->sessionToken->session_token,
+            'Session-Token' => $this->sessionToken,
             'app-token' => $this->appToken,
             'Authorization' => 'Basic Z2xwaTouQURNX1MzcnYxYzMu'
         ];
@@ -98,19 +125,19 @@ class GLPIApi
     public function addItem($item, $params = [])
     {
         $headers = [
-            'Session-Token' => $this->sessionToken->session_token,
+            'Session-Token' => $this->sessionToken,
             'app-token' => $this->appToken,
             'Content-Type' => 'application/json',
             'Authorization' => 'Basic Z2xwaTouQURNX1MzcnYxYzMu'
         ];
-
+        
         return $this->sendRequest('POST', '/' . $item, $headers, $params);
     }
 
     public function updateItem($item, $id, $params)
     {
         $headers = [
-            'Session-Token' => $this->sessionToken->session_token,
+            'Session-Token' => $this->sessionToken,
             'app-token' => $this->appToken,
             'Content-Type' => 'application/json',
             'Authorization' => 'Basic Z2xwaTouQURNX1MzcnYxYzMu'
@@ -122,7 +149,7 @@ class GLPIApi
     public function deleteItem($item, $id)
     {
         $headers = [
-            'Session-Token' => $this->sessionToken->session_token,
+            'Session-Token' => $this->sessionToken,
             'app-token' => $this->appToken,
             'Content-Type' => 'application/json',
             'Authorization' => 'Basic Z2xwaTouQURNX1MzcnYxYzMu'
@@ -134,7 +161,7 @@ class GLPIApi
     public function purgeItem($item, $id)
     {
         $headers = [
-            'Session-Token' => $this->sessionToken->session_token,
+            'Session-Token' => $this->sessionToken,
             'app-token' => $this->appToken,
             'Content-Type' => 'application/json',
             'Authorization' => 'Basic Z2xwaTouQURNX1MzcnYxYzMu'
@@ -153,7 +180,7 @@ class GLPIApi
         }
 
         $headers = [
-            'Session-Token' => $this->sessionToken->session_token,
+            'Session-Token' => $this->sessionToken,
             'app-token' => $this->appToken,
         ];
 
@@ -177,13 +204,12 @@ class GLPIApi
         return $this->sendRequest('POST', '/' . $item, $headers, ['multipart' => $multipart]);
     }
 
-    public static function render($result) {
+    public static function render($result)
+    {
         echo "<div style='background-color: #f0f0f0;
             border-radius: 10px;
             padding: 15px;
             margin: 20px;
             font-family: Arial, sans-serif;'> <pre>" . $result . "</pre></div>";
     }
-
-    
 }

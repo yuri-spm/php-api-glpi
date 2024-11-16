@@ -47,6 +47,34 @@ $createTicketOutput = ob_get_clean();
 GLPIApi::render($createTicketOutput);
 
 
+//Create Ticket Anonymus Ticket
+$data = [
+    "input" => [
+        "name" => "Abertura de chamado anonimo",
+        "content" => "Abertura de chamado anonimo",
+        "_skip_auto_assign" => true,
+        "requesttypes_id" => 1,
+        "type" => 2,
+        "itilcategories_id" => 2,
+        "_actors" => [
+            "requester" => [
+                [
+                    "itemtype" => "User",
+                    "use_notification" => 1,
+                    "alternative_email" => "teste2@gmail.com"
+                ]
+            ]
+        ]
+    ]
+];
+
+
+$createTicket = $glpiApi->addItem('Ticket', $data);
+ob_start();
+var_dump($createAnonymusTicket);
+$createTicketOutput = ob_get_clean();
+
+GLPIApi::render($createAnonymusTicket);
 
 //Update Ticket
 $data = [
