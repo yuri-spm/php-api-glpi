@@ -65,7 +65,7 @@ class GLPIApi
 
         try {
             $request = new Request('POST', $uri, $headers, $body);
-            $response = $client->send($request); // `send` é síncrono e mais confiável aqui
+            $response = $client->send($request);
             $responseBody = json_decode($response->getBody()->getContents(), true);
 
             if (isset($responseBody['session_token']) && !empty($responseBody['session_token'])) {
